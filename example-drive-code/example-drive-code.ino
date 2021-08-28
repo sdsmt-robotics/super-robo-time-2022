@@ -58,7 +58,10 @@ const int BRIGHTNESS = 40;
 CRGB ledStrip[NUM_LEDS];
 
 //claw
-SRTClaw claw(10);
+//SRTClaw claw(10);
+
+//Kicker
+SRTKicker kicker(10);
 
 //infrared line sensor
 SRTLine line(A3);
