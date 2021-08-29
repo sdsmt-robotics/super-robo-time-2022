@@ -27,7 +27,6 @@ This code has no copyright license, do whatever you want with it
 #include <Servo.h>       // https://github.com/RoboticsBrno/ServoESP32
 
 #include "kicker.h"
-#include "claw.h"
 #include "line.h"
 #include "srt-ultrasonic.h"
 
@@ -57,9 +56,6 @@ const int NUM_LEDS = 8;
 const int BRIGHTNESS = 40;
 CRGB ledStrip[NUM_LEDS];
 
-//claw
-//SRTClaw claw(10);
-
 //Kicker
 SRTKicker kicker(10);
 
@@ -74,7 +70,6 @@ void setup()
   analogWriteFrequency(2000);
   lMotor.init();
   rMotor.init();
-  claw.init(2); //claw MUST be initialized AFTER the motors on ledc channel >= 2
   line.init();
   battery.init();
   distance.init(&ultrasonic);
@@ -122,6 +117,17 @@ void loop() {
     lVel *= xBias;
   }
 
+  //activate the kicker 
+  if(GamePad.isSquarePressed())
+  {
+    kickerOn();
+  }
+
+  //deactivate the kicker
+  if (GamePad.isCrossPressed())
+  {
+    kickerOff();
+  }
   //set the motor speeds
   lMotor.setSpeedDirection(lVel, true);
   rMotor.setSpeedDirection(rVel, true);
@@ -133,6 +139,7 @@ void loop() {
     ledState = !ledState;
     prevTimeLED = millis();
   }
+
 }
 
 void stopRobot()

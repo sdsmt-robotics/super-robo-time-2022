@@ -5,12 +5,12 @@ SRTKicker::SRTKicker(int _pin)
   pin = _pin;
 }
 
-void kickerOn()
+void SRTKicker::kickerOn()
 {
-  digitalWrite(_pin, HIGH);
+  digitalWrite(pin, HIGH);
 }
 
-void kickerOff()
+void SRTKicker::kickerOff()
 {
-  digitalWrite(_pin, LOW);
+  digitalWrite(pin, LOW);
 }
