@@ -120,13 +120,13 @@ void loop() {
   //activate the kicker 
   if(GamePad.isSquarePressed())
   {
-    kickerOn();
+    kicker.kickerOn();
   }
 
   //deactivate the kicker
   if (GamePad.isCrossPressed())
   {
-    kickerOff();
+    kicker.kickerOff();
   }
   //set the motor speeds
   lMotor.setSpeedDirection(lVel, true);
