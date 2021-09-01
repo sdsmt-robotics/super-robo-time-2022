@@ -98,6 +98,18 @@ void loop() {
   
   //do some math to figure out how to drive each motor
   Dabble.processInput();
+  
+  //activate the kicker 
+  if(GamePad.isSquarePressed() == true)
+  {
+    kicker.kickerOn();
+  }
+  //deactivate the kicker
+  if (GamePad.isCrossPressed() == true)
+  {
+    kicker.kickerOff();    
+  }
+    
   float xRaw = GamePad.getXaxisData();
   float yRaw = GamePad.getYaxisData();
   float xBias = -abs(xRaw) / 7 + 1;
@@ -116,18 +128,7 @@ void loop() {
   {
     lVel *= xBias;
   }
-
-  //activate the kicker 
-  if(GamePad.isSquarePressed())
-  {
-    kicker.kickerOn();
-  }
-
-  //deactivate the kicker
-  if (GamePad.isCrossPressed())
-  {
-    kicker.kickerOff();
-  }
+ 
   //set the motor speeds
   lMotor.setSpeedDirection(lVel, true);
   rMotor.setSpeedDirection(rVel, true);
