@@ -3,7 +3,6 @@
 SRTKicker::SRTKicker(int _pin)
 {
   pin = _pin;
-  digitalWrite(pin, LOW);
 }
 
 void SRTKicker::kickerOn()

@@ -57,7 +57,7 @@ const int BRIGHTNESS = 40;
 CRGB ledStrip[NUM_LEDS];
 
 //Kicker
-SRTKicker kicker(10);
+SRTKicker kicker(13);
 
 //infrared line sensor
 SRTLine line(A3);
@@ -75,6 +75,7 @@ void setup()
   distance.init(&ultrasonic);
 
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(13, OUTPUT);
 
   FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(ledStrip, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
@@ -100,12 +101,12 @@ void loop() {
   Dabble.processInput();
   
   //activate the kicker 
-  if(GamePad.isSquarePressed() == true)
+  if(GamePad.isSquarePressed())
   {
     kicker.kickerOn();
   }
   //deactivate the kicker
-  if (GamePad.isCrossPressed() == true)
+  if (GamePad.isCrossPressed())
   {
     kicker.kickerOff();    
   }
