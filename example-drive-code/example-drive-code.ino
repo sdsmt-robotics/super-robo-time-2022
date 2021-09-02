@@ -12,6 +12,8 @@ Author: Dustin Richards <dustin.richards@mines.sdsmt.edu>
 Contributors:
   Heath Buer, fixed a very annoying crash by finding that running the motor driver
     on pins TX0 and RX0 == bad time
+  Josiah Huntington, removed claw controls and added code for a kicker
+    pin 13 is the lucky pin
 
 This code has no copyright license, do whatever you want with it
 */
@@ -109,6 +111,11 @@ void loop() {
   if (GamePad.isCrossPressed())
   {
     kicker.kickerOff();    
+  }
+  //kicker on then off
+  if (GamePad.isCirclePressed())
+  {
+    kicker.kickerPulse();
   }
     
   float xRaw = GamePad.getXaxisData();
