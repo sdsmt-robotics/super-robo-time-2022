@@ -14,3 +14,10 @@ void SRTKicker::kickerOff()
 {
   digitalWrite(pin, LOW);
 }
+
+void SRTKicker::kickerPulse()
+{
+  digitalWrite(pin, HIGH);
+  delay(1500);
+  digitalWrite(pin, LOW);
+}

@@ -12,6 +12,7 @@ public:
   SRTKicker(int _pin);
   void kickerOn();
   void kickerOff();
+  void kickerPulse();
 };
 
 #endif

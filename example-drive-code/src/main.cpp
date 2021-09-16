@@ -12,19 +12,22 @@ Author: Dustin Richards <dustin.richards@mines.sdsmt.edu>
 Contributors:
   Heath Buer, fixed a very annoying crash by finding that running the motor driver
     on pins TX0 and RX0 == bad time
+  Josiah Huntington, removed claw controls and added code for a kicker
+    pin 13 is the lucky pin
 
 This code has no copyright license, do whatever you want with it
 */
 
 #define CUSTOM_SETTINGS
 #define INCLUDE_GAMEPAD_MODULE
+#include <Arduino.h>
 #include <DabbleESP32.h> // https://github.com/STEMpedia/DabbleESP32
 #include <L289N.h>       // https://github.com/sdsmt-robotics/L298N
 #include <batterySense.h>// https://github.com/sdsmt-robotics/srt2020-battery-sense
 #include <analogWrite.h> // https://github.com/ERROPiX/ESP32_AnalogWrite
 #include <Ultrasonic.h>  // https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
 #include <FastLED.h>     // https://github.com/FastLED/FastLED
-#include <Servo.h>       // https://github.com/RoboticsBrno/ServoESP32
+#include <ESP32Servo.h>  // https://github.com/RoboticsBrno/ServoESP32
 
 #include "kicker.h"
 #include "line.h"
@@ -61,6 +64,43 @@ SRTKicker kicker(13);
 
 //infrared line sensor
 SRTLine line(A3);
+
+void stopRobot()
+{
+  lMotor.setSpeedDirection(0);
+  rMotor.setSpeedDirection(0);
+
+  //set whole LED strip to black
+  int i;
+  for (i = 0; i < NUM_LEDS; i++)
+  {
+    ledStrip[i] = CRGB::Black;
+  }
+  FastLED.show();
+
+  i = 0;
+  do
+  {
+    //light one LED red at a time, one after the other
+    ledStrip[i++] = CRGB::Black;
+    if (i >= NUM_LEDS)
+    {
+      i = 0;
+    }
+    ledStrip[i] = CRGB::Red;
+    FastLED.show();
+
+    //two short pulses on the onboard LED
+    digitalWrite(LED_BUILTIN, 1);
+    delay(200);
+    digitalWrite(LED_BUILTIN, 0);
+    delay(100);
+    digitalWrite(LED_BUILTIN, 1);
+    delay(200);
+    digitalWrite(LED_BUILTIN, 0);
+    delay(2000);
+  } while (true);
+}
 
 void setup()
 {
@@ -110,6 +150,11 @@ void loop() {
   {
     kicker.kickerOff();    
   }
+  //kicker on then off
+  if (GamePad.isCirclePressed())
+  {
+    kicker.kickerPulse();
+  }
     
   float xRaw = GamePad.getXaxisData();
   float yRaw = GamePad.getYaxisData();
@@ -142,41 +187,4 @@ void loop() {
     prevTimeLED = millis();
   }
 
-}
-
-void stopRobot()
-{
-  lMotor.setSpeedDirection(0);
-  rMotor.setSpeedDirection(0);
-
-  //set whole LED strip to black
-  int i;
-  for (i = 0; i < NUM_LEDS; i++)
-  {
-    ledStrip[i] = CRGB::Black;
-  }
-  FastLED.show();
-
-  i = 0;
-  do
-  {
-    //light one LED red at a time, one after the other
-    ledStrip[i++] = CRGB::Black;
-    if (i >= NUM_LEDS)
-    {
-      i = 0;
-    }
-    ledStrip[i] = CRGB::Red;
-    FastLED.show();
-
-    //two short pulses on the onboard LED
-    digitalWrite(LED_BUILTIN, 1);
-    delay(200);
-    digitalWrite(LED_BUILTIN, 0);
-    delay(100);
-    digitalWrite(LED_BUILTIN, 1);
-    delay(200);
-    digitalWrite(LED_BUILTIN, 0);
-    delay(2000);
-  } while (true);
 }
