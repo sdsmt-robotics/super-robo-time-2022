@@ -14,8 +14,7 @@ private:
 public:
   SRTKicker(int _pin);
   void kickerOn();
-  void kickerOff();
-  void kickerPulse();   //add function definitions below, and implement the functions in kicker.cpp
+  void kickerOff();   //add function definitions below, and implement the functions in kicker.cpp
 };
 
 #endif
