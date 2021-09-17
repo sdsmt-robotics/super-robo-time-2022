@@ -77,7 +77,6 @@ void setup()
   distance.init(&ultrasonic);
 
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(13, OUTPUT);
 
   FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(ledStrip, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
@@ -101,21 +100,23 @@ void loop() {
   
   //do some math to figure out how to drive each motor
   Dabble.processInput();
-  
-  //activate the kicker 
+
+  /*********************
+   * Use 
+   *  if( GamePad.isTriaglePressed() ) 
+   * or 
+   *  if( GamePad.isCirclePressed() )
+   * to add more functions for the kicker
+   */
+  //Turn the kicker on
   if(GamePad.isSquarePressed())
   {
     kicker.kickerOn();
   }
-  //deactivate the kicker
+  //Turn the kicker off
   if (GamePad.isCrossPressed())
   {
     kicker.kickerOff();    
-  }
-  //kicker on then off
-  if (GamePad.isCirclePressed())
-  {
-    kicker.kickerPulse();
   }
     
   float xRaw = GamePad.getXaxisData();

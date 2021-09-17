@@ -2,22 +2,19 @@
 
 SRTKicker::SRTKicker(int _pin)
 {
-  pin = _pin;
+  //set up the WPM channel
+  ledcSetup(PWMChannel, PWMFreq, PWMResolution);
+  
+  //attach the channel and pin
+  ledcAttachPin(_pin, PWMChannel);
 }
 
 void SRTKicker::kickerOn()
 {
-  digitalWrite(pin, HIGH);
+    ledcWrite(PWMChannel, rotation);
 }
 
 void SRTKicker::kickerOff()
 {
-  digitalWrite(pin, LOW);
-}
-
-void SRTKicker::kickerPulse()
-{
-  digitalWrite(pin, HIGH);
-  delay(1500);
-  digitalWrite(pin, LOW);
+    ledcWrite(PWMChannel, 0);
 }
