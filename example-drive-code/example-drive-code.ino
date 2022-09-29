@@ -28,6 +28,8 @@ This code has no copyright license, do whatever you want with it
 #include <FastLED.h>     // https://github.com/FastLED/FastLED
 #include <Servo.h>       // https://github.com/RoboticsBrno/ServoESP32
 
+
+
 #include "kicker.h"
 #include "line.h"
 #include "srt-ultrasonic.h"
@@ -47,7 +49,9 @@ bool ledState = 0;
 uint32_t prevTimeLED = 0;
 
 //battery voltage sensor
-SRTBatterySense battery(A0);
+SRTBatterySense battery(A0, A3, A6);
+const int calibrationBridgePin = 35;
+const int calibrationBridgePin2 = 32;
 
 //LED strip
 FASTLED_USING_NAMESPACE
@@ -86,9 +90,20 @@ void setup()
     ledStrip[i] = CRGB::Green;
   }
   FastLED.show();
+
+  //
+  pinMode(calibrationBridgePin2, OUTPUT);
+  digitalWrite(calibrationBridgePin2, HIGH); 
+  pinMode(calibrationBridgePin, INPUT);
+  if (digitalRead(calibrationBridgePin))
+  {
+    battery.calibrate();
+  }
 }
 
 void loop() {
+
+  
   //stop the bot if the battery is low
   if (battery.getRollingAverage() < 7)
   {
@@ -101,6 +116,7 @@ void loop() {
   //do some math to figure out how to drive each motor
   Dabble.processInput();
 
+  
   /*********************
    * Use 
    *  if( GamePad.isTriaglePressed() ) 
@@ -118,7 +134,7 @@ void loop() {
   {
     kicker.kickerOff();    
   }
-    
+  
   float xRaw = GamePad.getXaxisData();
   float yRaw = GamePad.getYaxisData();
   float xBias = -abs(xRaw) / 7 + 1;
