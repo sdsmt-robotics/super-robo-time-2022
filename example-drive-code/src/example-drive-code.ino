@@ -20,14 +20,15 @@ This code has no copyright license, do whatever you want with it
 
 #define CUSTOM_SETTINGS
 #define INCLUDE_GAMEPAD_MODULE
-#include <Arduino.h>
 #include <DabbleESP32.h> // https://github.com/STEMpedia/DabbleESP32
 #include <L289N.h>       // https://github.com/sdsmt-robotics/L298N
 #include <batterySense.h>// https://github.com/sdsmt-robotics/srt2020-battery-sense
 #include <analogWrite.h> // https://github.com/ERROPiX/ESP32_AnalogWrite
 #include <Ultrasonic.h>  // https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
 #include <FastLED.h>     // https://github.com/FastLED/FastLED
-#include <ESP32Servo.h>  // https://github.com/RoboticsBrno/ServoESP32
+#include <Servo.h>       // https://github.com/RoboticsBrno/ServoESP32
+
+
 
 #include "kicker.h"
 #include "line.h"
@@ -48,7 +49,9 @@ bool ledState = 0;
 uint32_t prevTimeLED = 0;
 
 //battery voltage sensor
-SRTBatterySense battery(A0);
+SRTBatterySense battery(A0, A3, A6);
+const int calibrationBridgePin = 35;
+const int calibrationBridgePin2 = 32;
 
 //LED strip
 FASTLED_USING_NAMESPACE
@@ -64,6 +67,106 @@ SRTKicker kicker(13);
 
 //infrared line sensor
 SRTLine line(A3);
+
+void setup()
+{
+  Serial.begin(115200);
+  Dabble.begin("DEFAULT SRT ROBOT NAME"); //change the name inside the quotes, this will appear in your Bluetooth menu
+  
+  analogWriteFrequency(2000);
+  lMotor.init();
+  rMotor.init();
+  line.init();
+  battery.init();
+  distance.init(&ultrasonic);
+
+  pinMode(LED_BUILTIN, OUTPUT);
+
+  FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(ledStrip, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.setBrightness(BRIGHTNESS);
+
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    ledStrip[i] = CRGB::Green;
+  }
+  FastLED.show();
+
+  //
+  pinMode(calibrationBridgePin2, OUTPUT);
+  digitalWrite(calibrationBridgePin2, HIGH); 
+  pinMode(calibrationBridgePin, INPUT);
+  if (digitalRead(calibrationBridgePin))
+  {
+    battery.calibrate();
+  }
+}
+
+void loop() {
+
+  
+  //stop the bot if the battery is low
+  if (battery.getRollingAverage() < 7)
+  {
+    stopRobot(); 
+  }
+
+  //sample the ultrasonic sensor, this needs to run very frequently
+  distance.sample();
+  
+  //do some math to figure out how to drive each motor
+  Dabble.processInput();
+
+  
+  /*********************
+   * Use 
+   *  if( GamePad.isTriaglePressed() ) 
+   * or 
+   *  if( GamePad.isCirclePressed() )
+   * to add more functions for the kicker
+   */
+  //Turn the kicker on
+  if(GamePad.isSquarePressed())
+  {
+    kicker.kickerOn();
+  }
+  //Turn the kicker off
+  if (GamePad.isCrossPressed())
+  {
+    kicker.kickerOff();    
+  }
+  
+  float xRaw = GamePad.getXaxisData();
+  float yRaw = GamePad.getYaxisData();
+  float xBias = -abs(xRaw) / 7 + 1;
+  int yMap = sqrt(pow(xRaw, 2) + pow(yRaw, 2));
+  yMap = map(yMap, 0, 7, 0, 255);
+  if (yRaw < 0) yMap *= -1;
+
+  lVel = yMap;
+  rVel = yMap;
+
+  if (xRaw > 0)
+  {
+    rVel *= xBias;
+  }
+  else if (xRaw < 0)
+  {
+    lVel *= xBias;
+  }
+ 
+  //set the motor speeds
+  lMotor.setSpeedDirection(lVel, true);
+  rMotor.setSpeedDirection(rVel, true);
+
+  //handle blinking the ESP32's built-in LED
+  if (millis() > prevTimeLED + BLINK_PERIOD)
+  {
+    digitalWrite(LED_BUILTIN, ledState);
+    ledState = !ledState;
+    prevTimeLED = millis();
+  }
+
+}
 
 void stopRobot()
 {
@@ -100,91 +203,4 @@ void stopRobot()
     digitalWrite(LED_BUILTIN, 0);
     delay(2000);
   } while (true);
-}
-
-void setup()
-{
-  Serial.begin(115200);
-  Dabble.begin("DEFAULT SRT ROBOT NAME"); //change the name inside the quotes, this will appear in your Bluetooth menu
-  
-  analogWriteFrequency(2000);
-  lMotor.init();
-  rMotor.init();
-  line.init();
-  battery.init();
-  distance.init(&ultrasonic);
-
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(13, OUTPUT);
-
-  FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(ledStrip, NUM_LEDS).setCorrection(TypicalLEDStrip);
-  FastLED.setBrightness(BRIGHTNESS);
-
-  for (int i = 0; i < NUM_LEDS; i++)
-  {
-    ledStrip[i] = CRGB::Green;
-  }
-  FastLED.show();
-}
-
-void loop() {
-  //stop the bot if the battery is low
-  if (battery.getRollingAverage() < 7)
-  {
-    stopRobot(); 
-  }
-
-  //sample the ultrasonic sensor, this needs to run very frequently
-  distance.sample();
-  
-  //do some math to figure out how to drive each motor
-  Dabble.processInput();
-  
-  //activate the kicker 
-  if(GamePad.isSquarePressed())
-  {
-    kicker.kickerOn();
-  }
-  //deactivate the kicker
-  if (GamePad.isCrossPressed())
-  {
-    kicker.kickerOff();    
-  }
-  //kicker on then off
-  if (GamePad.isCirclePressed())
-  {
-    kicker.kickerPulse();
-  }
-    
-  float xRaw = GamePad.getXaxisData();
-  float yRaw = GamePad.getYaxisData();
-  float xBias = -abs(xRaw) / 7 + 1;
-  int yMap = sqrt(pow(xRaw, 2) + pow(yRaw, 2));
-  yMap = map(yMap, 0, 7, 0, 255);
-  if (yRaw < 0) yMap *= -1;
-
-  lVel = yMap;
-  rVel = yMap;
-
-  if (xRaw > 0)
-  {
-    rVel *= xBias;
-  }
-  else if (xRaw < 0)
-  {
-    lVel *= xBias;
-  }
- 
-  //set the motor speeds
-  lMotor.setSpeedDirection(lVel, true);
-  rMotor.setSpeedDirection(rVel, true);
-
-  //handle blinking the ESP32's built-in LED
-  if (millis() > prevTimeLED + BLINK_PERIOD)
-  {
-    digitalWrite(LED_BUILTIN, ledState);
-    ledState = !ledState;
-    prevTimeLED = millis();
-  }
-
 }

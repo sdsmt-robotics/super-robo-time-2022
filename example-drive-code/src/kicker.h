@@ -5,14 +5,16 @@
 
 class SRTKicker
 {
-private:
-  int pin;
+private:   
+  const int PWMFreq = 5000;     //5 KHz 
+  const int PWMChannel = 15;     
+  const int PWMResolution = 10;
+  int rotation = (int)(pow(2, PWMResolution) - 1);
 
 public:
   SRTKicker(int _pin);
   void kickerOn();
-  void kickerOff();
-  void kickerPulse();
+  void kickerOff();   //add function definitions below, and implement the functions in kicker.cpp
 };
 
 #endif
