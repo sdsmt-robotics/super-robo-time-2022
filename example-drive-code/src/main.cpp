@@ -20,13 +20,14 @@ This code has no copyright license, do whatever you want with it
 
 #define CUSTOM_SETTINGS
 #define INCLUDE_GAMEPAD_MODULE
+#include <Arduino.h>
 #include <DabbleESP32.h> // https://github.com/STEMpedia/DabbleESP32
 #include <L289N.h>       // https://github.com/sdsmt-robotics/L298N
 #include <batterySense.h>// https://github.com/sdsmt-robotics/srt2020-battery-sense
 #include <analogWrite.h> // https://github.com/ERROPiX/ESP32_AnalogWrite
 #include <Ultrasonic.h>  // https://github.com/JRodrigoTech/Ultrasonic-HC-SR04
 #include <FastLED.h>     // https://github.com/FastLED/FastLED
-#include <Servo.h>       // https://github.com/RoboticsBrno/ServoESP32
+#include <ESP32Servo.h>       // https://github.com/RoboticsBrno/ServoESP32
 
 
 
@@ -50,6 +51,7 @@ uint32_t prevTimeLED = 0;
 
 //battery voltage sensor
 SRTBatterySense battery(A0, A3, A6);
+void stopRobot();
 const int calibrationBridgePin = 35;
 const int calibrationBridgePin2 = 32;
 
