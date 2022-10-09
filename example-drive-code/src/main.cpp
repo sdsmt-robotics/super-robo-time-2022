@@ -30,11 +30,11 @@ This code has no copyright license, do whatever you want with it
 #include <ESP32Servo.h>       // https://github.com/RoboticsBrno/ServoESP32
 
 
-
 #include "kicker.h"
 #include "line.h"
 #include "srt-ultrasonic.h"
 
+#define LED_BUILTIN 2
 //motor driver setup
 L289N rMotor(23, 22, 21, true);
 L289N lMotor(19, 18, 5,  true);
@@ -204,5 +204,6 @@ void stopRobot()
     delay(200);
     digitalWrite(LED_BUILTIN, 0);
     delay(2000);
+    Serial.println(battery.getRollingAverage());
   } while (true);
 }
