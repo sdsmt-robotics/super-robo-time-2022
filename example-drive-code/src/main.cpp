@@ -204,5 +204,6 @@ void stopRobot()
     delay(200);
     digitalWrite(LED_BUILTIN, 0);
     delay(2000);
+    Serial.println(battery.getRollingAverage());
   } while (true);
 }
