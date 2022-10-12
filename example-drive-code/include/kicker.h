@@ -1,7 +1,7 @@
 #ifndef __SRT_KICKER
 #define __SRT_KICKER
 
-#include <arduino.h>
+#include <Arduino.h>
 
 class SRTKicker
 {

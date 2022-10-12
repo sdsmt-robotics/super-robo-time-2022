@@ -29,7 +29,7 @@ This code has no copyright license, do whatever you want with it
 #include <FastLED.h>     // https://github.com/FastLED/FastLED
 #include <ESP32Servo.h>       // https://github.com/RoboticsBrno/ServoESP32
 
-
+#define LED_BUILTIN 2
 
 #include "kicker.h"
 #include "line.h"
