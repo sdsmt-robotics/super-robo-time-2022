@@ -1,4 +1,16 @@
+.pio
 
-.vscode/launch.json
-.vscode/c_cpp_properties.json
-.vscode/extensions.json
+# === VS Code ignores ===
+# from https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
