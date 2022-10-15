@@ -73,7 +73,7 @@ SRTLine line(A3);
 void setup()
 {
   Serial.begin(115200);
-  Dabble.begin("DEFAULT SRT ROBOT NAME"); //change the name inside the quotes, this will appear in your Bluetooth menu
+  Dabble.begin("Default Srt Name"); //change the name inside the quotes, this will appear in your Bluetooth menu
   
   analogWriteFrequency(2000);
   lMotor.init();
@@ -81,6 +81,7 @@ void setup()
   line.init();
   battery.init();
   distance.init(&ultrasonic);
+  kicker.init();
 
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -130,11 +131,13 @@ void loop() {
   if(GamePad.isSquarePressed())
   {
     kicker.kickerOn();
+    Serial.println("KickerOn");
   }
   //Turn the kicker off
   if (GamePad.isCrossPressed())
   {
-    kicker.kickerOff();    
+    kicker.kickerOff();   
+    Serial.println("kickerOff");
   }
   
   float xRaw = GamePad.getXaxisData();
@@ -157,8 +160,8 @@ void loop() {
   }
  
   //set the motor speeds
-  lMotor.setSpeedDirection(lVel, true);
-  rMotor.setSpeedDirection(rVel, true);
+  lMotor.setSpeedDirection(lVel, false);
+  rMotor.setSpeedDirection(rVel, false);
 
   //handle blinking the ESP32's built-in LED
   if (millis() > prevTimeLED + BLINK_PERIOD)
@@ -166,6 +169,14 @@ void loop() {
     digitalWrite(LED_BUILTIN, ledState);
     ledState = !ledState;
     prevTimeLED = millis();
+  }
+
+  static unsigned long printTime = millis();
+
+  if (millis() > printTime + 500)
+  {
+    Serial.printf("x:%f,y:%f\n", xRaw, yRaw);
+    printTime = millis();
   }
 
 }
